@@ -1,6 +1,12 @@
 Cybot Resurrected
 =================
 
+**Table of Contents**
+1. [Features](#features)
+2. [Hardware and Electronics](#hardware-and-electronics)
+3. [Software](#software)
+
+----
 
 This is a project to bring my old [Cybot] back my to life.
 
@@ -47,8 +53,17 @@ features I would like for now:
   separate IR sensor).
 * Line follower option.
 
-----
+Hardware and Electronics
+------------------------
+ToDo
+
+Software
+--------
+See [here](firmware) for details about the Robot Control software.
+
+
 [Cybot]: https://en.wikipedia.org/wiki/Real_Robots
 [FoamBot]: https://github.com/fitzterra/FoamBot
 [Foam Board]: https://en.wikipedia.org/wiki/Foamcore
 [co-operative multitasking]: https://github.com/fitzterra/Task
+[firmware]: firmware/README.md

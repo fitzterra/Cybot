@@ -16,6 +16,17 @@ bool InputHandler::canRun(uint32_t now) {
         D(F("Learn mode exiting: no input received.\n"));
         learnMode = false;
         // Reset anything that has been changed from EEPROM
+        // NOTE: Reloading maps here could cause an issue given the following
+        //       situation:
+        //  1. No mapping has been stored yet, or the stored maps are
+        //     invalidated due to an EEPROM signature change.
+        //  2. Enter learn mode and learn the first few commands
+        //  3. Timeout learn mode to get here
+        //  4. Now we try to load the command maps from EEPROM, but the EEPROM
+        //     data is invalid.
+        //  5. The incomplete trained commands are still in force because it
+        //     was not overwritten from a 'valid' map in EEPROM.
+        // This is an edge case, but a better solution should be found.
         loadCmdMaps();
     }
     // Call the input handler's own method to check if there is any input.

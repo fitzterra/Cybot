@@ -1,0 +1,4 @@
+# Build dirs created by the firware Makefile
+_build*/
+# Vim swap files
+.*.swp
