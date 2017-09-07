@@ -32,7 +32,7 @@ ARDUINO_LIBS = \
 		   Task \
 		   IRremote \
 		   SoftwareSerial \
-#		   SoftPWM
+		   SoftPWM
 
 -include $(ARDMK_DIR)/Arduino.mk
 
