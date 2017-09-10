@@ -1,9 +1,11 @@
 # Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile
 
-ARDUINO_DIR = /home/tomc/Downloads/Arduino/arduino-1.8.3
+#ARDUINO_DIR = /home/tomc/Downloads/Arduino/arduino-1.8.3
+ARDUINO_DIR = /usr/local/share/arduino-1.8.2
 
 ARCHITECTURE  = avr
-BOARD_TAG    = nano
+BOARD_TAG    = uno
+#BOARD_TAG    = nano
 BOARD_SUB    = atmega328
 ISP_PORT = /dev/ttyUSB0
 #AVRDUDE_ARD_BAUDRATE = 115200
@@ -15,9 +17,11 @@ ifdef BOARD_SUB
 endif
 
 #ARDMK_DIR=/usr/share/arduino
-ARDMK_DIR=/home/tomc/ownCloud/GaulNet/Electronics/Arduino/Arduino-Makefile
+#ARDMK_DIR=/home/tomc/ownCloud/GaulNet/Electronics/Arduino/Arduino-Makefile
+ARDMK_DIR=/home/tomc/ownCloud/Electronics/Arduino/Arduino-Makefile
 
-USER_LIB_PATH = /home/tomc/ownCloud/GaulNet/Electronics/Arduino/sketchbook/libraries
+#USER_LIB_PATH = /home/tomc/ownCloud/GaulNet/Electronics/Arduino/sketchbook/libraries
+USER_LIB_PATH = /home/tomc/ownCloud/Electronics/Arduino/sketchbook/libraries
 
 # The -fno-threadsafe-statics flag is needed to avoid the :
 #   undefined reference to `__cxa_guard_acquire`
@@ -32,6 +36,7 @@ ARDUINO_LIBS = \
 		   Task \
 		   IRremote \
 		   SoftwareSerial \
+		   Servo \
 		   SoftPWM
 
 -include $(ARDMK_DIR)/Arduino.mk

@@ -103,4 +103,113 @@ class Wheel_HB : public Wheel {
 };
 #endif // HBRIDGE_DRV_EN
 
+/**
+ * Class that combines wheels into a single drive train control
+ **/
+class DriveTrain {
+    private:
+#ifdef HBRIDGE_DRV_EN
+        Wheel_HB *wheel[2];    // Left and Right wheels for HBrige drivers
+#else
+        Wheel_CRS *wheel[2];  // Left and Right wheels for Continues Servo Drivers
+#endif // HBRIDGE_DRV_EN
+        int8_t speed;        // Current relative speed as percentage of full speed
+        int8_t dir;          // Direction of travel, -100 to 100. See MovementControl docs.
+
+        /**
+         * Update the wheels speed based on the current direction and speed.
+         **/
+        void updateWheels(); // Updates the wheel rotation from speed and dir.
+
+    public:
+#ifdef HBRIDGE_DRV_EN
+        /**
+         * Sets up a drive train for HBridge controlled motors.
+         *
+         * @param pinLeftF: Left HBridge forward pin
+         * @param pinLeftR: Left HBridge reverse pin
+         * @param pinRightF: Right HBridge forward pin
+         * @param pinRightF: Right HBridge reverse pin
+         * @param leftInv: Set to true to invert left motor rotation direction
+         * @param rightInv: Set to true to invert right motor rotation direction
+         **/
+        DriveTrain(uint8_t pinLeftF, uint8_t pinLeftR,
+                   uint8_t pinRightF, uint8_t pinRightR,
+                   bool leftInv=false, bool rightInv=false);
+#else
+        /**
+         * Sets up a drive train for Continues Rotation Servos.
+         *
+         * @param pinLeft: Left servo control pin
+         * @param pinRight: Right servo control pin
+         * @param leftInv: Set to true to invert left servo rotation direction
+         * @param rightInv: Set to true to invert right servo rotation direction
+         **/
+        DriveTrain(uint8_t pinLeft, uint8_t pinRight,
+                   bool leftInv=false, bool rightInv=false);
+#endif // HBRIDGE_DRV_EN
+
+        /**
+         * Sets full speed forward
+         **/
+        void forward();
+
+        /**
+         * Sets full speed reverse
+         **/
+        void reverse();
+
+        /**
+         * Stops motion by setting speed to 0
+         **/
+        void stop();
+
+        /**
+         * Adjust direction by TURN_STEPs to the left
+         **/
+        void left();
+
+        /**
+         * Adjust direction by TURN_STEPs to the right
+         **/
+        void right();
+
+        /**
+         * Adjust direction by the supplied direction.
+         *
+         * @param dir: A direction value between MAX_LEFT (full turn left) and
+         *             MAX_RIGHT (full turn right), with 0 being going straight
+         *             forward. See diagrams in docs.
+         **/
+        void direction(int8_t dir);
+
+        /**
+         * Speed up by SPEED_STEPs up to MAX_SPEED
+         **/
+        void speedUp();
+
+        /**
+         * Slow down by SPEED_STEPs down to MIN_SPEED
+         **/
+        void slowDown();
+
+        /**
+         * Sets the speed to s if it is between MIN_SPEED and MAX_SPEED.
+         * Ignores the speed change otherwise.
+         *
+         * @param s: The new speed between MIN_SPEED and MAX_SPEED
+         **/
+        void setSpeed(int8_t speed);
+
+        /**
+         * Returns the current speed.
+         **/
+        int8_t getSpeed() {return speed;};
+
+        /**
+         * Returns the current direction.
+         **/
+        int8_t getDirection() {return dir;};
+};
+
 #endif // _DRIVETRAIN_H_

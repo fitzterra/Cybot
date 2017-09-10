@@ -199,3 +199,147 @@ void Wheel_HB::setSpeed(int8_t sp) {
 }
 #endif // HBRIDGE_DRV_EN
 
+// ####################### DriveTrain class definitions ######################
+
+/**
+ * Contstructor
+ **/
+#ifdef HBRIDGE_DRV_EN
+DriveTrain::DriveTrain(uint8_t pinLeftF, uint8_t pinLeftR,
+                       uint8_t pinRightF, uint8_t pinRightR,
+                       bool leftInv, bool rightInv) {
+
+    // Create wheel instances
+    wheel[LEFT] = new Wheel_HB(pinLeftF, pinLeftR, LEFT, leftInv);
+    wheel[RIGHT] = new Wheel_HB(pinRightF, pinRightR, RIGHT, rightInv);
+	// Default speed to 0
+	speed = 0;
+};
+#else
+DriveTrain::DriveTrain(uint8_t pinLeft, uint8_t pinRight,
+                       bool leftInv, bool rightInv) {
+
+    // Create wheel instances
+    wheel[LEFT] = new Wheel_CRS(pinLeft, LEFT, leftInv);
+    wheel[RIGHT] = new Wheel_CRS(pinRight, RIGHT, rightInv);
+	// Default speed to 0
+	speed = 0;
+};
+#endif // HBRIDGE_DRV_EN
+
+void DriveTrain::updateWheels() {
+    // Left and right relative speeds
+    int8_t leftRel, rightRel;
+
+    // See the MovementControl docs for more info.
+    // For a positive direction (forward or turning right), the left wheel
+    // relative speed is at 100%, while the right wheel needs to be mapped
+    // between 100 and -100 %
+    if (dir>=0) {
+        leftRel = 100;
+        rightRel = map(dir, 0, 100, 100, -100);
+    } else {
+        // For turning to the left, the right wheel rel speed is 100% while
+        // the left wheel needs to be mapped between 100 and -100 %
+        rightRel = 100;
+        leftRel = map(dir, 0, -100, 100, -100);
+    }
+
+    // The left and right wheel speeds are now the relative percentages of the
+    // current speed setting. Calculate the actual speed per wheel relative to
+    // the current speed.
+    leftRel = ((int16_t)speed*leftRel)/100;
+    rightRel = ((int16_t)speed*rightRel)/100;
+
+    // Update the wheels
+	wheel[LEFT]->setSpeed(leftRel);
+	wheel[RIGHT]->setSpeed(rightRel);
+};
+
+void DriveTrain::forward() {
+    // Set speed to 100% and direction to 0
+    speed = 100;
+    dir = 0;
+    // Update
+    updateWheels();
+}
+
+void DriveTrain::reverse() {
+    // Set speed to -100% and direction to 0
+    speed = -100;
+    dir = 0;
+    // Update
+    updateWheels();
+}
+
+void DriveTrain::stop() {
+    // Set speed to 0, but leave current direction
+    speed = 0;
+    // Update
+    updateWheels();
+}
+
+void DriveTrain::left() {
+    // Adjust direction
+    dir -= TURN_STEP;
+    // Stick to limits
+    if (dir < MAX_LEFT) dir = MAX_LEFT;
+    // Update
+    updateWheels();
+}
+
+void DriveTrain::right() {
+    // Adjust direction
+    dir += TURN_STEP;
+    // Stick to limits
+    if (dir > MAX_RIGHT) dir = MAX_RIGHT;
+    // Update
+    updateWheels();
+}
+
+void DriveTrain::direction(int8_t dir) {
+    // Ignore an invalid direction
+	if(dir<MAX_LEFT || dir>MAX_RIGHT) return;
+	// Set the new direction.
+    dir = dir;
+    // Update
+    updateWheels();
+}
+
+void DriveTrain::speedUp() {
+	// TODO: Speed should be between 0 and 100%, not MIN and MAX_SPEED
+    // Adjust speed
+    speed += SPEED_STEP;
+    // Stick to limits
+    if (speed > MAX_SPEED) speed = MAX_SPEED;
+    // Update
+    updateWheels();
+}
+
+void DriveTrain::slowDown() {
+	// TODO: Speed should be between 0 and 100%, not MIN and MAX_SPEED
+    // Adjust speed
+    speed -= SPEED_STEP;
+    // Stick to limits
+    if (speed < MIN_SPEED) speed = MIN_SPEED;
+    // Update
+    updateWheels();
+}
+
+/**
+ * Set the speed.
+ *
+ * @param speed A speed value as percentage of full speed.
+ **/
+
+void DriveTrain::setSpeed(int8_t s) {
+
+    // Validate
+    if(s<MIN_SPEED || s>MAX_SPEED)
+        return;
+
+	// Set the speed
+    speed = s;
+    // Update
+    updateWheels();
+}

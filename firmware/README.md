@@ -8,11 +8,13 @@ Software for Robot Control
 	1. [Streaming](#streaming)
 	2. [Task](#task)
 	3. [IRRemote](#irremote)
+	4. [SoftPWM](#softpwm)
 4. [Components](#components)
 	1. [Configuration](#configuration)
 	2. [Debugging](#debugging)
 	3. [Utils](#utils)
 	4. [Input Control and Robot commands](#input-control-and-robot-commands)
+	5. [Drive Train and Wheels](#drive-train-and-wheels)
 5. [Testing](#testing)
 
 
@@ -94,6 +96,21 @@ functionality.
 **Installation**: This can be installed vi the Arduino IDE Library Manager.
 Search for `IRRemote` by **shirrif**.
 
+### SoftPWM
+This library provides software PWM which allows any digital pin to be used for
+PWM control and not only yhe hardware PWM pins.
+
+Configuring software PWM for speed control can be done my defining
+`HBRIDGE_SOFT_PWM` in `config.h` under the *HBRIDGE_DRV_EN* section.
+
+This should only be done if it is not possible to use have 4 hardware enabled
+PWM pins for controlling the two HBridges. Software PWM is slower than hardware
+PWM and also has some other limitations that might become an issue depending on
+the complexity and other libraries used in the rest of the control system.
+
+**Installation**: Clone it from **Brett Hagman's** [SoftPWM GitHub] repo into
+your `libraries` directory.
+
 Components
 ----------
 The software consists of the following components:
@@ -126,6 +143,46 @@ Bluetooth, etc.) and decoding this input to robot control commands.
 
 See the [controls] documentation for more details.
 
+### Drive Train and Wheels
+A **Wheel** is modeled as an object that can be rotate forwards or backwards at a
+set _speed_. The _speed_ is not a distance over time like meters/second for
+example, but rather a percentage of the full power of the motor.
+
+This means that a speed value of `50` will rotate the wheel at 50% of it's full
+power. The speed can be in the range `-100` (full speed backwards) to `100`
+(full speed forwards).
+
+For Continues Rotation Servos, the _power_ is managed by setting the servo
+angle, which makes the servo rotate slower or faster to try to reach the angle.
+For HBridges with Brushed DC Motors, the _power_ is managed via PWM.
+
+A **Drive Train** is modeled as two wheels of the same type, placed on the left
+and right sides of the chassis. The drive train can then be told to drive at a
+specific speed (again, as a percentage of full rotation speed of the wheels),
+forwards or backwards, or to change to a set direction.
+
+As for the speed value, the _direction_ value is also a percentage between
+`-100` and `100`. For direction, a value of `0` means straight forward which will
+turn both wheels in the same direction at the same _speed_. Directions between
+`0` and `100` will make the robot turn to the left, with `50` representing the
+`90°` point (east). With a direction of `50`, the right wheel is stopped while
+the left wheel turns at the current _speed_.
+
+The direction `100` represents `180°`, in which case the right wheel is turning
+in _reverse_ at the current _speed_, while the left is going forward at the
+current _speed_. This means the robot is spinning clockwise on the same spot.
+
+The directions from `0` to `-100` are for turning in the left (west) direction,
+with the behaviour exactly the same as for the right direction.
+
+Note that `100` and `-100` are both `180°` spinning around the central axis,
+except that the direction of spin is different.
+
+This diagram explains the relationship between _speed_, _direction_ and the
+actual wheel turning speed:
+
+![Movement Control](../doc/Images/MovementControl.png "Movement Control")
+
 Testing
 -------
 See the [testing] documentation for more details
@@ -136,5 +193,6 @@ See the [testing] documentation for more details
 [streaminglib]:  http://arduiniana.org/libraries/streaming/
 [task manager]: http://bleaklow.com/2010/07/20/a_very_simple_arduino_task_manager.html
 [githubTaskLib]: https://github.com/fitzterra/Task
+[SoftPWM GitHub]: https://github.com/bhagman/SoftPWM
 [controls]: ControlCommand.md
 [testing]: tests/README.md
