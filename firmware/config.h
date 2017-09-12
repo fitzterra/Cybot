@@ -119,10 +119,10 @@ enum { LEFT=0, RIGHT=1, FORWARD=2, BACKWARD=3, STOP=4 };
 // using software PWN, then only pins that have hardware PWM support can be
 // used.
 //#define HBRIDGE_SOFT_PWM
-#define HBRIDGE_LEFT_FWD  3  // PWM pin for left wheel forward
-#define HBRIDGE_LEFT_REV  5  // PWM pin for left wheel reverse
-#define HBRIDGE_RIGHT_FWD 6  // PWM pin for right wheel forward
-#define HBRIDGE_RIGHT_REV 9  // PWM pin for right wheel reverse
+#define HBRIDGE_LEFT_FWD  5  // PWM pin for left wheel forward
+#define HBRIDGE_LEFT_REV  3  // PWM pin for left wheel reverse
+#define HBRIDGE_RIGHT_FWD 9  // PWM pin for right wheel forward
+#define HBRIDGE_RIGHT_REV 6  // PWM pin for right wheel reverse
 #endif  // HBRIDGE_DRV_EN 
 
 // ############# Line Follower Config ##############

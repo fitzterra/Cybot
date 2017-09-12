@@ -205,10 +205,11 @@ void Wheel_HB::setSpeed(int8_t sp) {
  * Contstructor
  **/
 #ifdef HBRIDGE_DRV_EN
-DriveTrain::DriveTrain(uint8_t pinLeftF, uint8_t pinLeftR,
+DriveTrain::DriveTrain(uint8_t *cs, uint8_t pinLeftF, uint8_t pinLeftR,
                        uint8_t pinRightF, uint8_t pinRightR,
                        bool leftInv, bool rightInv) {
-
+    // Save pointer to command store
+    commandStore = cs;
     // Create wheel instances
     wheel[LEFT] = new Wheel_HB(pinLeftF, pinLeftR, LEFT, leftInv);
     wheel[RIGHT] = new Wheel_HB(pinRightF, pinRightR, RIGHT, rightInv);
@@ -216,9 +217,11 @@ DriveTrain::DriveTrain(uint8_t pinLeftF, uint8_t pinLeftR,
 	speed = 0;
 };
 #else
-DriveTrain::DriveTrain(uint8_t pinLeft, uint8_t pinRight,
+DriveTrain::DriveTrain(uint8_t *cs, uint8_t pinLeft, uint8_t pinRight,
                        bool leftInv, bool rightInv) {
 
+    // Save pointer to command store
+    commandStore = cs;
     // Create wheel instances
     wheel[LEFT] = new Wheel_CRS(pinLeft, LEFT, leftInv);
     wheel[RIGHT] = new Wheel_CRS(pinRight, RIGHT, rightInv);
@@ -226,6 +229,44 @@ DriveTrain::DriveTrain(uint8_t pinLeft, uint8_t pinRight,
 	speed = 0;
 };
 #endif // HBRIDGE_DRV_EN
+
+void DriveTrain::run(uint32_t now) {
+    bool foundCommand = true; // Indicates if valid command was found.
+
+    // The commands we can handle
+    switch (*commandStore) {
+        case CMD_FWD:
+            forward();
+            break;
+        case CMD_REV:
+            reverse();
+            break;
+        case CMD_BRK:
+            stop();
+            break;
+        case CMD_LFT:
+            left();
+            break;
+        case CMD_RGT:
+            right();
+            break;
+        case CMD_SUP:
+            speedUp();
+            break;
+        case CMD_SDN:
+            slowDown();
+            break;
+        default:
+            // Not one of our commands
+            foundCommand = false;
+            break;
+    }
+
+    // Clear the command store if we handled the command
+    if(foundCommand) {
+        *commandStore = CMD_ZZZ;
+    }
+}
 
 void DriveTrain::updateWheels() {
     // Left and right relative speeds

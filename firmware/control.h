@@ -84,7 +84,19 @@ class InputHandler : public Task {
         uint32_t learnTimeOut;
 
     public:
-        InputHandler(void *cm, uint8_t *cs, uint16_t md, uint16_t rm) :
+        /**
+         * Class contructor.
+         *
+         * @param cm: Pointer to the command map array for this input type.
+         * @param cs: Pointer to the external command store where new input
+         *            commands will be placed after receiving and decoding from
+         *            the input hardware.
+         * @param md: Minimum delay required between successive input commands
+         *            if any. Defaults to 0.
+         * @param rm: Max time between successive duplicate inputs which would
+         *            count it as a repeat and not a new command. Defaults to 0.
+         **/
+        InputHandler(void *cm, uint8_t *cs, uint16_t md=0, uint16_t rm=0) :
             commandMap(cm), commandStore(cs), minDelay(md), repeatMax(rm),
             repeatCnt(0), cmd(CMD_ZZZ), lastInTm(0), learnMode(false) {};
         virtual bool hasInput(uint32_t now) =0;
@@ -105,7 +117,12 @@ class SerialIn : public InputHandler {
 		char lastRX;	// The last input character received
 
 	public:
-        SerialIn(void *cm, uint8_t *cs, uint16_t md, uint16_t rm);
+        /**
+         * Contructor.
+         *
+         * See the InputHandler's constructor for parameters.
+         **/
+        SerialIn(void *cm, uint8_t *cs, uint16_t md=0, uint16_t rm=0);
         bool hasInput(uint32_t now);
         bool decodeInput(uint32_t now);
         void learnPrompt(int8_t cmd);
@@ -123,8 +140,16 @@ class BTIn : public InputHandler {
         SoftwareSerial *bts; // BT serial port
 
 	public:
-        BTIn(uint8_t rxPin, uint8_t txPin, void *cm, uint8_t *cs, uint16_t md,
-             uint16_t rm);
+        /**
+         * Contructor.
+         *
+         * @param rxPin: Pin used for RX, which connect to BT module's TX.
+         * @param txPin: Pin used for TX, which connect to BT module's RX.
+         *
+         * See the InputHandler's constructor for other parameters.
+         **/
+        BTIn(uint8_t rxPin, uint8_t txPin, void *cm, uint8_t *cs,
+             uint16_t md=0, uint16_t rm=0);
         bool hasInput(uint32_t now);
         bool decodeInput(uint32_t now);
         void learnPrompt(int8_t cmd);
@@ -143,7 +168,14 @@ class IRIn : public InputHandler {
 		uint32_t lastRX;	// Time the last code was received.
 
 	public:
-        IRIn(uint8_t pin, void *cm, uint8_t *cs, uint16_t md, uint16_t rm);
+        /**
+         * Contructor.
+         *
+         * @param pin: Pin connected to IR receiver.
+         *
+         * See the InputHandler's constructor for other parameters.
+         **/
+        IRIn(uint8_t pin, void *cm, uint8_t *cs, uint16_t md=0, uint16_t rm=0);
         bool hasInput(uint32_t now);
         bool decodeInput(uint32_t now);
         void learnPrompt(int8_t cmd);

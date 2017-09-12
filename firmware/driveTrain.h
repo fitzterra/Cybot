@@ -8,6 +8,8 @@
 
 #include "config.h"
 #include "debug.h"
+#include "commands.h"
+#include <Task.h>
 #include <Arduino.h>
 #ifdef SERVO_DRV_EN
 #include <Servo.h>
@@ -106,8 +108,12 @@ class Wheel_HB : public Wheel {
 /**
  * Class that combines wheels into a single drive train control
  **/
-class DriveTrain {
+class DriveTrain : public Task {
     private:
+        // Pointer to external command store from which to fetch any new
+        // movement commands to execute.
+        uint8_t *commandStore;
+
 #ifdef HBRIDGE_DRV_EN
         Wheel_HB *wheel[2];    // Left and Right wheels for HBrige drivers
 #else
@@ -126,6 +132,7 @@ class DriveTrain {
         /**
          * Sets up a drive train for HBridge controlled motors.
          *
+         * @param cs: Pointer to external command store to check for new commands.
          * @param pinLeftF: Left HBridge forward pin
          * @param pinLeftR: Left HBridge reverse pin
          * @param pinRightF: Right HBridge forward pin
@@ -133,21 +140,36 @@ class DriveTrain {
          * @param leftInv: Set to true to invert left motor rotation direction
          * @param rightInv: Set to true to invert right motor rotation direction
          **/
-        DriveTrain(uint8_t pinLeftF, uint8_t pinLeftR,
+        DriveTrain(uint8_t *cs, uint8_t pinLeftF, uint8_t pinLeftR,
                    uint8_t pinRightF, uint8_t pinRightR,
                    bool leftInv=false, bool rightInv=false);
 #else
         /**
          * Sets up a drive train for Continues Rotation Servos.
          *
+         * @param cs: Pointer to external command store to check for new commands.
          * @param pinLeft: Left servo control pin
          * @param pinRight: Right servo control pin
          * @param leftInv: Set to true to invert left servo rotation direction
          * @param rightInv: Set to true to invert right servo rotation direction
          **/
-        DriveTrain(uint8_t pinLeft, uint8_t pinRight,
+        DriveTrain(uint8_t *cs, uint8_t pinLeft, uint8_t pinRight,
                    bool leftInv=false, bool rightInv=false);
 #endif // HBRIDGE_DRV_EN
+
+        /**
+         * Method from Task class to test if the DriveTrain task can run.
+         *
+         * It will run anytime there is a new command in the command store.
+         **/
+		bool canRun(uint32_t now) { return (*commandStore != CMD_ZZZ); };
+
+        /**
+         * Method from Task class that will be called when there is a new
+         * command in the command store that needs to be considered for
+         * execution by the drive train.
+         **/
+		void run(uint32_t now);
 
         /**
          * Sets full speed forward

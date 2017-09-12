@@ -18,7 +18,7 @@ const char *cmdName[] = {
 //	"Spin Left",    	// CMD_SPL 8	// Spin left
 //	"Spin Right",   	// CMD_SPR 9	// Spin right
 	"Info",         	// CMD_INF 7	// Info
-	"Demo",         	// CMD_TST 8	// Test      
+	"Demo",         	// CMD_DMO 8	// Demo
 	"Learn",         	// CMD_LRN 9	// Learn command maps
 //	"Talk",         	// CMD_TLK 13	// Talk??
 };
@@ -28,7 +28,7 @@ eepromData commandMaps = {
     // Should be changed everytime the commands or command structures change,
     // including everytime an input method (serial, IR, BT, etc.) is enabled or
     // disabled.
-    0xAA55,
+    0xAA57,
 
     /****** Number of commands in maps *****/
     CMD_ZZZ,
@@ -87,7 +87,7 @@ eepromData commandMaps = {
     //	0,	// CMD_SPR 9	// Spin right
         0,  // CMD_INF 7	// Info
         0,	// CMD_DMO 8	// Demo      
-        '0',// CMD_LRN 9	// Learn command maps
+        'l',// CMD_LRN 9	// Learn command maps
     //	0,  // CMD_TLK 13	// Talk?
     },
 #endif
