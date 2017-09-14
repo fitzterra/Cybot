@@ -42,3 +42,34 @@ void OpenSerial(uint32_t speed) {
 	}
 	#endif // _DEBUG
 };
+
+#ifdef SOFTSERIAL_EN
+/**
+ * Helper for opening the SSerial (software serial) port only once.
+ *
+ * @param speed: The port speed.
+ */
+void OpenSoftSerial(uint32_t speed) {
+	static bool isOpen=false;
+	static uint32_t s=0;
+
+	// Not open yet?
+	if (!isOpen) {
+		// Save the speed
+		s = speed;
+		// Open it
+		SSerial.begin(speed);
+		// Indicate that it is open
+		isOpen = true;
+		return;
+	}
+
+	#ifdef _DEBUG
+	// Different speed attempted?
+	if(speed!=s) {
+		D(F("SoftSerial open attempted with new speed: ") << speed \
+			   << F(". Not changed from: ") << s << endl);
+	}
+	#endif // _DEBUG
+};
+#endif // SOFTSERIAL_EN

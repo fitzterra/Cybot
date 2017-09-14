@@ -16,6 +16,7 @@ class InpCons : public TimedTask {
     void run(uint32_t now) {
         if(*cmd < CMD_ZZZ) {
             D(F("New command: ") << cmdName[*cmd] << endl);
+            DSS(F("New command: ") << cmdName[*cmd] << endl);
             *cmd = CMD_ZZZ;
         }
         incRunTime(rate);
@@ -26,14 +27,16 @@ class InpCons : public TimedTask {
 void setup() {
     OpenSerial();
     D(F("We're open.\n"));
-    //loadCmdMaps();
+
+    OpenSoftSerial();
+    DSS(F("Soft serial is open.\n"));
 }
 
 void loop() {
     uint8_t cmd = CMD_ZZZ;
 
     SerialIn sIn(commandMaps.serialMap, &cmd, SI_MIN_DELAY, SI_REPEAT_MAX);
-    BTIn bIn(BT_RX_PIN, BT_TX_PIN, commandMaps.btMap, &cmd, BT_MIN_DELAY, BT_REPEAT_MAX);
+    BTIn bIn(commandMaps.btMap, &cmd, BT_MIN_DELAY, BT_REPEAT_MAX);
     IRIn iIn(IR_PIN, commandMaps.irMap, &cmd, IR_MIN_DELAY, IR_REPEAT_MAX);
     InpCons consumer(100, &cmd);
     Task *tasks[] = {&sIn, &bIn, &iIn, &consumer};

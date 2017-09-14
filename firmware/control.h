@@ -11,9 +11,6 @@
 #include "commands.h"
 #include <Task.h>
 #include <TaskScheduler.h>
-#ifdef INP_BT_EN
-    #include <SoftwareSerial.h>
-#endif // INP_BT_EN
 #ifdef INP_IR_EN
     #include <IRremote.h>
 #endif // INP_IR_EN
@@ -137,19 +134,14 @@ class SerialIn : public InputHandler {
 class BTIn : public InputHandler {
 	private:
 		char lastRX;	// The last input character received
-        SoftwareSerial *bts; // BT serial port
 
 	public:
         /**
          * Contructor.
          *
-         * @param rxPin: Pin used for RX, which connect to BT module's TX.
-         * @param txPin: Pin used for TX, which connect to BT module's RX.
-         *
          * See the InputHandler's constructor for other parameters.
          **/
-        BTIn(uint8_t rxPin, uint8_t txPin, void *cm, uint8_t *cs,
-             uint16_t md=0, uint16_t rm=0);
+        BTIn(void *cm, uint8_t *cs, uint16_t md=0, uint16_t rm=0);
         bool hasInput(uint32_t now);
         bool decodeInput(uint32_t now);
         void learnPrompt(int8_t cmd);

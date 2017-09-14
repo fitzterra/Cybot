@@ -13,6 +13,19 @@
 // The speed for the serial port for debug output and also for the serial input
 // handler if enabled.
 #define SERIAL_SPEED 115200
+// If using a Bluetooth input or output, these are the TX and RX pins for the
+// Software Serial connection to the BT module and also the speed.
+#define SOFTSERIAL_RX 12
+#define SOFTSERIAL_TX 11
+#define SOFTSERIAL_SPEED 9600
+// If SOFTSERIAL_EN is defined, the config mechanism will make a globally
+// accessible software serial port available called SSerial which will behave
+// the same as the standard Serial port.
+// If enabling Bluetooth input below (INP_BT_EN), SOFTSERIAL_EN would
+// automatically be defined since the BT input mechanism depends on SSerial.
+// Define this to create the SSerial port - see also OpenSoftSerial in utils.
+//#define SOFTSERIAL_EN
+
 // When in learn mode, how long to wait for input before timing out and exiting
 // learn mode without saving the learned input. The value is in milliseconds
 #define LEARNMODE_TIMEOUT 10*1000;
@@ -92,14 +105,13 @@ enum { LEFT=0, RIGHT=1, FORWARD=2, BACKWARD=3, STOP=4 };
 #endif // INP_IR_EN
 
 // ############### BT Input config #################
-// Uses SoftwareSerial with an HC-06 BT module for simple serial comms
+// Uses the SSerial port (see SOFTSERIAL_EN above) with an HC-06 BT module for
+// simple serial comms.
+// Note that the software serial RX and TX pins are defined above with the
+// SOFTSERIAL_RX and SOFTSERIAL_TX defines.
 #ifdef INP_BT_EN
-// Bluetooth RX pin to use for Software Serial
-#define BT_RX_PIN  12
-// Bluetooth TX pin to use for Software Serial
-#define BT_TX_PIN  11
-// Comms speed for BlueTooth
-#define BT_SPEED 9600
+// Make sure we set up the SSerial port.
+#define SOFTSERIAL_EN
 // As for SI_MIN_DELAY, but only for BT
 #define BT_MIN_DELAY 100
 // As for SI_REPEAT_MAX, but only for BT
@@ -162,5 +174,13 @@ enum bumberBits_t {BUMP_FL, BUMP_FR, BUMP_RL, BUMP_RR}
 // ################# OLED Config ##################
 #ifdef OLED_EN
 #endif  // OLED_EN
+
+// Make SSerial available if required. The actual instantiation of SSerial is
+// done in config.cpp, but the opening of the port should still be done via
+// SSerial.begin() or the OpenSoftSerial() helper in utils.
+#ifdef SOFTSERIAL_EN
+#include <SoftwareSerial.h>
+extern SoftwareSerial SSerial;
+#endif //SOFTSERIAL_EN
 
 #endif  //_CONFIG_H_

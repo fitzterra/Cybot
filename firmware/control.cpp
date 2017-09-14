@@ -264,16 +264,10 @@ bool SerialIn::learnSetCmd(int8_t cmd) {
 /**
  * Constructor.
  */
-BTIn::BTIn(uint8_t rxPin, uint8_t txPin, void *cm, uint8_t *cs, uint16_t md,
-           uint16_t rm) :
+BTIn::BTIn(void *cm, uint8_t *cs, uint16_t md, uint16_t rm) :
             InputHandler(cm, cs, md, rm) {
-
-    // Create a new SoftwareSerial port
-    bts = new SoftwareSerial(rxPin, txPin);
-    bts->begin(BT_SPEED);
-
-	// Open the standard serial port with default speed for output.
-	OpenSerial();
+	// Open the SSerial port with default speed for output.
+	OpenSoftSerial();
 
     D(F("Starting BTIn task...\n"));
 }
@@ -282,7 +276,7 @@ BTIn::BTIn(uint8_t rxPin, uint8_t txPin, void *cm, uint8_t *cs, uint16_t md,
  * Input handler specific method to test if input is available.
  **/
 bool BTIn::hasInput(uint32_t now) {
-	return bts->available();
+	return SSerial.available();
 }
 
 /**
@@ -295,7 +289,7 @@ bool BTIn::hasInput(uint32_t now) {
  */
 bool BTIn::decodeInput(uint32_t now) {
 	// Read the input;
-	char c = (char)bts->read();
+	char c = (char)SSerial.read();
 	// Calculate the time since the last input was received
 	uint32_t rxInterval = now - lastInTm;
 
@@ -364,7 +358,7 @@ bool BTIn::learnSetCmd(int8_t cmd) {
     // test for it, and it is specific to the input type.
     static char skip = 0;
 	// Read the input;
-	char c = (char)bts->read();
+	char c = (char)SSerial.read();
     // Cast void pointer to command map to char pointer for easier access
     char *cmdMap = (char *)commandMap;
 
@@ -376,8 +370,8 @@ bool BTIn::learnSetCmd(int8_t cmd) {
     // bigger issue.
     delay(1);
     char c2;
-    while(bts->available()) {
-        c2 = bts->read();
+    while(SSerial.available()) {
+        c2 = SSerial.read();
         //D(F("\nExtra char: ") << c2 << endl);
     }
 

@@ -13,3 +13,9 @@
 #else
 	#define D(x)
 #endif
+
+#if (defined(SOFTSERIAL_EN) && defined(_DEBUG))
+	#define DSS(x) SSerial << x
+#else
+	#define DSS(x)
+#endif
