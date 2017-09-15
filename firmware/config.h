@@ -140,6 +140,8 @@ enum { LEFT=0, RIGHT=1, FORWARD=2, BACKWARD=3, STOP=4 };
 #define HBRIDGE_LEFT_REV  3  // PWM pin for left wheel reverse
 #define HBRIDGE_RIGHT_FWD 9  // PWM pin for right wheel forward
 #define HBRIDGE_RIGHT_REV 6  // PWM pin for right wheel reverse
+#define POWER_START_TIME  800 // Do a power start over this many millis
+#define POWER_START_TAPER 100 // For power start, taper to target speed at this rate.
 #endif  // HBRIDGE_DRV_EN 
 
 // ############# Line Follower Config ##############

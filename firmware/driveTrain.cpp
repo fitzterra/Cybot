@@ -215,7 +215,63 @@ DriveTrain::DriveTrain(uint8_t *cs, uint8_t pinLeftF, uint8_t pinLeftR,
     wheel[RIGHT] = new Wheel_HB(pinRightF, pinRightR, RIGHT, rightInv);
 	// Default speed and direction to 0
 	speed = dir = 0;
+    // Zero power start timer
+    powerStartTimer = 0;
 };
+
+void DriveTrain::powerStart(uint32_t now, int8_t targetSpeed) {
+    static int8_t tSpeed=0; // Internal target speed to get to.
+    static int8_t tDir=1;  // Internal direction (1 or -1) for positive speeds
+    static uint32_t nextPoint=0; // Next point to adjust the speed
+    static uint32_t startPoint=0;// The time when we started
+
+    // We only allow a power start to be initiated if the current speed
+    // is 0.
+    if(speed==0) {
+        // The target speed has to be non zero, else we ignore it
+        if(targetSpeed == 0) {
+            D(F("Target speed should not be 0 for power start init.\n"));
+            return;
+        }
+        // Determine and save the target direction
+        tDir = targetSpeed>0 ? 1 : -1;
+        // Save the target speed
+        tSpeed = abs(targetSpeed);
+        // Set the timer for when to time out
+        powerStartTimer = now + POWER_START_TIME;
+        // Set the next adjustment point
+        nextPoint = now + POWER_START_TAPER;
+        // Record the start time
+        startPoint = now;
+        // Set speed to 100% and update the wheels
+        speed = 100*tDir;
+        updateWheels();
+        // Power start init is done, we can return
+        return;
+    }
+
+    // Not a power start init. Return if we're not at the next update
+    // point?
+    if (now < nextPoint) return;
+
+    // Have we reached the timer end point yet?
+    if(now >= powerStartTimer) {
+        // Reset the timer to indicate we are done with the power start
+        powerStartTimer = 0;
+        // Set the final speed
+        speed = tSpeed * tDir;
+        updateWheels();
+        // We're done
+        return;
+    }
+
+    // Set the next update point
+    nextPoint = now + POWER_START_TAPER;
+    // Set the new relative speed
+    speed = map(now, startPoint, powerStartTimer, 100, tSpeed) * tDir;
+    updateWheels();
+}
+
 #else
 DriveTrain::DriveTrain(uint8_t *cs, uint8_t pinLeft, uint8_t pinRight,
                        bool leftInv, bool rightInv) {
@@ -229,6 +285,17 @@ DriveTrain::DriveTrain(uint8_t *cs, uint8_t pinLeft, uint8_t pinRight,
 	speed = dir = 0;
 };
 #endif // HBRIDGE_DRV_EN
+
+bool DriveTrain::canRun(uint32_t now) {
+#ifdef HBRIDGE_DRV_EN
+    // Call powerStart() if we're in power start mode.
+    if(powerStartTimer != 0)
+        powerStart(now);
+#endif // HBRIDGE_DRV_EN
+
+    // Otherwise only run if we have a new command.
+    return (*commandStore != CMD_ZZZ);
+};
 
 void DriveTrain::run(uint32_t now) {
     bool foundCommand = true; // Indicates if valid command was found.
@@ -356,12 +423,19 @@ void DriveTrain::direction(int8_t direct) {
 }
 
 void DriveTrain::speedUp() {
-	// TODO: Speed should be between 0 and 100%, not MIN and MAX_SPEED
     // Adjust speed
-    if(speed==0)
+    if(speed==0) {
+#ifdef HBRIDGE_DRV_EN
+        // For HBridge drivers, we do a power start to 50% power from standstill
+        powerStart(millis(), 50);
+        return;
+#else
+        // For Servos, we simply go to 50%
         speed = 50;
-    else
+#endif // HBRIDGE_DRV_EN
+    } else {
         speed += SPEED_STEP;
+    }
     // Stick to limits
     if (speed > MAX_SPEED) speed = MAX_SPEED;
     // Update
@@ -369,12 +443,19 @@ void DriveTrain::speedUp() {
 }
 
 void DriveTrain::slowDown() {
-	// TODO: Speed should be between 0 and 100%, not MIN and MAX_SPEED
     // Adjust speed
-    if(speed==0)
+    if(speed==0) {
+#ifdef HBRIDGE_DRV_EN
+        // For HBridge drivers, we do a power start to 50% power from standstill
+        powerStart(millis(), -50);
+        return;
+#else
+        // For Servos, we simply go to 50%
         speed = -50;
-    else
+#endif // HBRIDGE_DRV_EN
+    } else {
         speed -= SPEED_STEP;
+    }
     // Stick to limits
     if (speed < MIN_SPEED) speed = MIN_SPEED;
     // Update

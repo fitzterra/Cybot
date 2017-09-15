@@ -116,6 +116,7 @@ class DriveTrain : public Task {
 
 #ifdef HBRIDGE_DRV_EN
         Wheel_HB *wheel[2];    // Left and Right wheels for HBrige drivers
+        uint32_t powerStartTimer; // Time to end powerstart mode
 #else
         Wheel_CRS *wheel[2];  // Left and Right wheels for Continues Servo Drivers
 #endif // HBRIDGE_DRV_EN
@@ -143,6 +144,37 @@ class DriveTrain : public Task {
         DriveTrain(uint8_t *cs, uint8_t pinLeftF, uint8_t pinLeftR,
                    uint8_t pinRightF, uint8_t pinRightR,
                    bool leftInv=false, bool rightInv=false);
+
+        /**
+         * Method to help start a brushed DC motor from standstill to a speed
+         * less than 100%.
+         *
+         * DC motors controlled by PWM may sometimes have a problem starting
+         * slowly. To help overcome this, the motor can be started at full
+         * speed to get the movement going, then the speed is tapered off to
+         * get to the desired slower speed.
+         *
+         * This method is used to control this "power start" mode. It works
+         * like this:
+         *   - Call this method whenever a new speed (that is less than 100%)
+         *     needs to be set if the current speed is 0 (standstill), passing
+         *     in the new speed as the target speed.
+         *   - This method then sets the powerStartTimer instance attribute to
+         *     to a target time in the future of when to reach the target speed
+         *     by tapering off the speed in intervals.
+         *   - It then sets the speed to 100% and returns.
+         *   - From now on every time the task is called to see if it should
+         *     run, it will check if powerStartTimer is not zero. If so, this
+         *     is and indicator that we are in a power start state, and this
+         *     method will be called to reduce power until we reach the target
+         *     speed.
+         *
+         * @param now: The current time in millis.
+         * @param targetSpeed: Only supply this the first time when initiatin a
+         *        power start. This is the target speed that should be set when
+         *        the power start is complete.
+         **/
+        void powerStart(uint32_t now, int8_t targetSpeed=0); 
 #else
         /**
          * Sets up a drive train for Continues Rotation Servos.
@@ -161,8 +193,10 @@ class DriveTrain : public Task {
          * Method from Task class to test if the DriveTrain task can run.
          *
          * It will run anytime there is a new command in the command store.
+         * If will also always call powerStart() while in power start state
+         * for HBridge driver mode.
          **/
-		bool canRun(uint32_t now) { return (*commandStore != CMD_ZZZ); };
+		bool canRun(uint32_t now);
 
         /**
          * Method from Task class that will be called when there is a new
