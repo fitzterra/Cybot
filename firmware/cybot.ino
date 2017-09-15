@@ -40,7 +40,7 @@ void setup() {
                           SI_MIN_DELAY, SI_REPEAT_MAX);
 #endif // INP_SERIAL_EN
 #ifdef INP_BT_EN
-    btInput = new BTIn(BT_RX_PIN, BT_TX_PIN, commandMaps.btMap, &nxtCmd,
+    btInput = new BTIn(commandMaps.btMap, &nxtCmd,
                        BT_MIN_DELAY, BT_REPEAT_MAX);
 #endif // INP_BT_EN
 #ifdef INP_IR_EN

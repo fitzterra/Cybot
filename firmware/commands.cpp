@@ -28,7 +28,7 @@ eepromData commandMaps = {
     // Should be changed everytime the commands or command structures change,
     // including everytime an input method (serial, IR, BT, etc.) is enabled or
     // disabled.
-    0xAA57,
+    0xAA55,
 
     /****** Number of commands in maps *****/
     CMD_ZZZ,
@@ -68,7 +68,7 @@ eepromData commandMaps = {
     //	0x00,      	// CMD_SPR 9	// Spin right
         0x00,   	// CMD_INF 7	// Info
         0x00,      	// CMD_DMO 8	// Demo      
-        0x2FD48B7,      	// CMD_LRN 9	// Learn command maps
+        0x2FD5AA5,  // CMD_LRN 9	// Learn command maps - Changhong remote S.MODE button (music note)
     //	0x00,      	// CMD_TLK 13	// Talk?
     },
 #endif

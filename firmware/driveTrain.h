@@ -203,7 +203,7 @@ class DriveTrain : public Task {
          *             MAX_RIGHT (full turn right), with 0 being going straight
          *             forward. See diagrams in docs.
          **/
-        void direction(int8_t dir);
+        void direction(int8_t direct);
 
         /**
          * Speed up by SPEED_STEPs up to MAX_SPEED

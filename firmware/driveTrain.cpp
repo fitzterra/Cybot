@@ -213,8 +213,8 @@ DriveTrain::DriveTrain(uint8_t *cs, uint8_t pinLeftF, uint8_t pinLeftR,
     // Create wheel instances
     wheel[LEFT] = new Wheel_HB(pinLeftF, pinLeftR, LEFT, leftInv);
     wheel[RIGHT] = new Wheel_HB(pinRightF, pinRightR, RIGHT, rightInv);
-	// Default speed to 0
-	speed = 0;
+	// Default speed and direction to 0
+	speed = dir = 0;
 };
 #else
 DriveTrain::DriveTrain(uint8_t *cs, uint8_t pinLeft, uint8_t pinRight,
@@ -225,8 +225,8 @@ DriveTrain::DriveTrain(uint8_t *cs, uint8_t pinLeft, uint8_t pinRight,
     // Create wheel instances
     wheel[LEFT] = new Wheel_CRS(pinLeft, LEFT, leftInv);
     wheel[RIGHT] = new Wheel_CRS(pinRight, RIGHT, rightInv);
-	// Default speed to 0
-	speed = 0;
+	// Default speed and direction to 0
+	speed = dir = 0;
 };
 #endif // HBRIDGE_DRV_EN
 
@@ -236,10 +236,14 @@ void DriveTrain::run(uint32_t now) {
     // The commands we can handle
     switch (*commandStore) {
         case CMD_FWD:
-            forward();
+            //forward();
+            direction(0);
+            setSpeed(abs(speed));
             break;
         case CMD_REV:
-            reverse();
+            //reverse();
+            direction(0);
+            setSpeed(abs(speed)*-1);
             break;
         case CMD_BRK:
             stop();
@@ -265,6 +269,10 @@ void DriveTrain::run(uint32_t now) {
     // Clear the command store if we handled the command
     if(foundCommand) {
         *commandStore = CMD_ZZZ;
+#ifdef BT_FEEDBACK
+        SSerial << F("Speed: ") << speed << F("  Dir: ") << dir << endl;
+#endif //BT_FEEDBACK
+        D(F("Speed: ") << speed << F("  Dir: ") << dir << endl);
     }
 }
 
@@ -338,11 +346,11 @@ void DriveTrain::right() {
     updateWheels();
 }
 
-void DriveTrain::direction(int8_t dir) {
+void DriveTrain::direction(int8_t direct) {
     // Ignore an invalid direction
 	if(dir<MAX_LEFT || dir>MAX_RIGHT) return;
 	// Set the new direction.
-    dir = dir;
+    dir = direct;
     // Update
     updateWheels();
 }
@@ -350,7 +358,10 @@ void DriveTrain::direction(int8_t dir) {
 void DriveTrain::speedUp() {
 	// TODO: Speed should be between 0 and 100%, not MIN and MAX_SPEED
     // Adjust speed
-    speed += SPEED_STEP;
+    if(speed==0)
+        speed = 50;
+    else
+        speed += SPEED_STEP;
     // Stick to limits
     if (speed > MAX_SPEED) speed = MAX_SPEED;
     // Update
@@ -360,7 +371,10 @@ void DriveTrain::speedUp() {
 void DriveTrain::slowDown() {
 	// TODO: Speed should be between 0 and 100%, not MIN and MAX_SPEED
     // Adjust speed
-    speed -= SPEED_STEP;
+    if(speed==0)
+        speed = -50;
+    else
+        speed -= SPEED_STEP;
     // Stick to limits
     if (speed < MIN_SPEED) speed = MIN_SPEED;
     // Update

@@ -30,6 +30,11 @@
 // learn mode without saving the learned input. The value is in milliseconds
 #define LEARNMODE_TIMEOUT 10*1000;
 
+// Define this if you want to get feedback on current speed and direction over
+// the Bluetooh software serial port.
+#define BT_FEEDBACK
+
+
 // @@@@@@@@@@@@ Feature selection definitions @@@@@@@@@@@@@@@
 //
 // Comment the #defines out to disable the feature, leave it uncommented to

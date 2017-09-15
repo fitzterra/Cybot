@@ -436,13 +436,13 @@ bool IRIn::hasInput(uint32_t now) {
 		// Get ready to receive the next input
 		irRecv->resume();
 
-        //#Debugging# D(F("IR in: ") << _HEX(irRes.value));
+        D(F("IR in: ") << _HEX(irRes.value) << endl);
         // IR input repeats aggressively, so we only indicate new input if it
         // is not a repeat, and silently ignore any repeats.
         if(irRes.value!=REPEAT) {
             return true;
         }
-        //#Debugging# D(F("  - ignoring this repeat.\n"));
+        D(F("  - ignoring this repeat.\n"));
 	}
 	return false;
 }
