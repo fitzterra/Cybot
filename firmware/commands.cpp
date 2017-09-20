@@ -93,8 +93,6 @@ eepromData commandMaps = {
 #endif
 };
 
-
-
 /**
  * Loads the command maps from EEPROM into the commandMaps object if the
  * correct signature is found in the EEPROM.

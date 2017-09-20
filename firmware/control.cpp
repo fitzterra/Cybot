@@ -184,10 +184,10 @@ bool SerialIn::decodeInput(uint32_t now) {
  **/
 void SerialIn::learnPrompt(int8_t cmd) {
     if(cmd==-1) {
-        D(F("\nInput to skip and use default: "));
+        Serial << F("\nInput to skip and use default: ");
     } else {
-    D(F("\nInput for: ") << cmdName[cmd] << F(" [")
-        << ((char *)commandMap)[cmd] << F("] "));
+    Serial << F("\nInput for: ") << cmdName[cmd] << F(" [")
+           << ((char *)commandMap)[cmd] << F("] ");
     }
 };
 
@@ -227,7 +227,7 @@ bool SerialIn::learnSetCmd(int8_t cmd) {
     // Is this the first entry to read the skip key?
     if(cmd==-1) {
         skip = c;
-        D((skip) << endl);
+        Serial << skip << endl;
         return true;
     }
 
@@ -242,14 +242,14 @@ bool SerialIn::learnSetCmd(int8_t cmd) {
         if(cmdMap[i] != c)
             continue;
         // We have a conflict
-        D(F("\nThis input is already assigned to '") << cmdName[i] \
-          << F("'. Please try again.\n"));
+        Serial << F("\nThis input is already assigned to '") << cmdName[i]
+               << F("'. Please try again.\n");
         learnPrompt(cmd);
         return false;
     }
 
     // Assign it
-    D(F(" = ") << c);
+    Serial << F(" = ") << c;
     cmdMap[cmd] = c;
 
     return true;
@@ -335,10 +335,10 @@ bool BTIn::decodeInput(uint32_t now) {
  **/
 void BTIn::learnPrompt(int8_t cmd) {
     if(cmd==-1) {
-        D(F("\nInput to skip and use default: "));
+        Serial << F("\nInput to skip and use default: ");
     } else {
-    D(F("\nInput for: ") << cmdName[cmd] << F(" [")
-        << ((char *)commandMap)[cmd] << F("] "));
+    Serial << F("\nInput for: ") << cmdName[cmd] << F(" [")
+           << ((char *)commandMap)[cmd] << F("] ");
     }
 };
 
@@ -378,7 +378,7 @@ bool BTIn::learnSetCmd(int8_t cmd) {
     // Is this the first entry to read the skip key?
     if(cmd==-1) {
         skip = c;
-        D((skip) << endl);
+        Serial << skip << endl;
         return true;
     }
 
@@ -393,14 +393,14 @@ bool BTIn::learnSetCmd(int8_t cmd) {
         if(cmdMap[i] != c)
             continue;
         // We have a conflict
-        D(F("\nThis input is already assigned to '") << cmdName[i] \
-          << F("'. Please try again.\n"));
+        Serial << F("\nThis input is already assigned to '") << cmdName[i]
+               << F("'. Please try again.\n");
         learnPrompt(cmd);
         return false;
     }
 
     // Assign it
-    D(F(" = ") << c);
+    Serial << F(" = ") << c;
     cmdMap[cmd] = c;
 
     return true;
