@@ -6,6 +6,7 @@
 #define _CONFIG_H_
 
 #include <stdint.h>
+#include "sharedSpace.h"
 
 // Define this to enable debugging
 #define _DEBUG

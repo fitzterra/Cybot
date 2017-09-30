@@ -293,8 +293,19 @@ bool DriveTrain::canRun(uint32_t now) {
         powerStart(now);
 #endif // HBRIDGE_DRV_EN
 
-    // Otherwise only run if we have a new command.
-    return (*commandStore != CMD_ZZZ);
+    // In order to not hog all the task time slices, we only want to call the
+    // run method if one of the commands we deal with is in the command store.
+    // These are the commands we handle:
+    uint8_t dtCmds[] = {CMD_FWD, CMD_REV, CMD_BRK, CMD_LFT, CMD_RGT, CMD_SUP,
+                        CMD_SDN};
+    // One of our commands waiting?
+    for (int8_t i=sizeof(dtCmds)/sizeof(*dtCmds)-1; i>=0; i--) {
+        if(*commandStore == dtCmds[i])
+            return true;
+    }
+    // Nope, so we do not need to run now, and another task can get an
+    // opportunity.
+    return false;
 };
 
 void DriveTrain::run(uint32_t now) {
@@ -370,6 +381,10 @@ void DriveTrain::updateWheels() {
     // Update the wheels
 	wheel[LEFT]->setSpeed(leftRel);
 	wheel[RIGHT]->setSpeed(rightRel);
+
+    // Update the global shared dir and speed indicators
+    shared.speed = speed;
+    shared.dir = dir;
 };
 
 void DriveTrain::forward() {
