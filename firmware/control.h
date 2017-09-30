@@ -101,6 +101,7 @@ class InputHandler : public Task {
 		virtual void learn(uint32_t now, bool init=false);
         virtual void learnPrompt(int8_t cmd) =0;
         virtual bool learnSetCmd(int8_t cmd) =0;
+        virtual uint8_t read(uint8_t num=1, uint16_t tout=100) =0;
 		virtual bool canRun(uint32_t now);
 		virtual void run(uint32_t now);
 };
@@ -124,6 +125,7 @@ class SerialIn : public InputHandler {
         bool decodeInput(uint32_t now);
         void learnPrompt(int8_t cmd);
         bool learnSetCmd(int8_t cmd);
+        virtual uint8_t read(uint8_t num=1, uint16_t tout=100) { return 7;}
 };
 #endif // INP_SERIAL_EN
 
@@ -146,6 +148,7 @@ class BTIn : public InputHandler {
         bool decodeInput(uint32_t now);
         void learnPrompt(int8_t cmd);
         bool learnSetCmd(int8_t cmd);
+        virtual uint8_t read(uint8_t num=1, uint16_t tout=100) { return 7;}
 };
 #endif // INP_BT_EN
 
@@ -161,7 +164,7 @@ class IRIn : public InputHandler {
 
 	public:
         /**
-         * Contructor.
+         * Constructor.
          *
          * @param pin: Pin connected to IR receiver.
          *
@@ -172,6 +175,9 @@ class IRIn : public InputHandler {
         bool decodeInput(uint32_t now);
         void learnPrompt(int8_t cmd);
         bool learnSetCmd(int8_t cmd);
+        // IR input does not support extended commands, so always returns 0
+        // when asked to read extended input characters.
+        virtual uint8_t read(uint8_t num=1, uint16_t tout=100) { return 0;}
 };
 #endif // INP_IR_EN
 
