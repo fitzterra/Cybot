@@ -111,6 +111,16 @@ the complexity and other libraries used in the rest of the control system.
 **Installation**: Clone it from **Brett Hagman's** [SoftPWM GitHub] repo into
 your `libraries` directory.
 
+### ACROBOTIC SSD1306
+This library is used for SSD1306 type OLED display that is currently supported.
+It is only needed if the display will be used.
+
+The display currently supported is a 128x64 OLED, driven by the SSD1306 chip
+over I2C.
+
+**Installation**:  This can be installed via the Arduino IDE Library Manager.
+Search for `ACROBOTIC SSD1306` by **ACROBOTIC**.
+
 Components
 ----------
 The software consists of the following components:

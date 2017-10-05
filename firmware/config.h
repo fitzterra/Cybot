@@ -62,7 +62,12 @@
 //#define BUMPERS_EN      // Enables bumper switches
 // ~~~~~~ Display options ~~~~~~~
 //#define LCD_EN           // Enable Nokia mono LCD (PDC8544)
-//#define OLED_EN          // Enable OLED display
+#define OLED_EN          // Enable OLED display
+
+// Auto define DISPLAY_EN if eithe LCD or OLED is enable
+#if defined(LCD_EN) || defined(OLED_EN)
+    #define DISPLAY_EN
+#endif
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
@@ -74,6 +79,11 @@
 // And that at least on input method has been defined
 #if !(defined(INP_SERIAL_EN) || defined(INP_IR_EN) || defined(INP_BT_EN))
 #error "You have not defined any input method. At least one of INP_???_EN defines are needed."
+#endif
+
+// We do not support LCD yet, so error out if enabled
+#ifdef LCD_EN
+#error "The LCD display is not supported yet. Only OLED for now."
 #endif
 
 // ############### General utility definitions #################
@@ -181,7 +191,19 @@ enum bumberBits_t {BUMP_FL, BUMP_FR, BUMP_RL, BUMP_RR}
 
 // ################# OLED Config ##################
 #ifdef OLED_EN
+// The OLED display supported here is a 128x64 display using the SSD1306 driver
+// chip over I2C. The smallest library currently known that supports this
+// display is the one from ACROBORIC:
+// https://github.com/acrobotic/Ai_Ardulib_SSD1306
+// It can be installed via the Arduino Library Manager.
+#include <ACROBOTIC_SSD1306.h>
+
+// Display update frequency in milliseconds
+#define DISP_UPD_FREQ 500
+
 #endif  // OLED_EN
+
+// #########################################
 
 // Make SSerial available if required. The actual instantiation of SSerial is
 // done in config.cpp, but the opening of the port should still be done via

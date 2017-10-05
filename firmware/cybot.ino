@@ -18,6 +18,13 @@ BTIn *btInput;
 #ifdef INP_IR_EN
 IRIn *irInput;
 #endif // INP_IR_EN
+
+// Display pointer
+#ifdef DISPLAY_EN
+#include "display.h"
+Display *display;
+#endif // DISPLAY_EN
+
 // The drive train object pointer
 DriveTrain *drvTrn;
 
@@ -52,6 +59,9 @@ void setup() {
     irInput = new IRIn(IR_PIN, commandMaps.irMap, &shared.nxtCmd,
                        IR_MIN_DELAY, IR_REPEAT_MAX);
 #endif // INP_IR_EN
+#ifdef DISPLAY_EN
+    display = new Display(DISP_UPD_FREQ);
+#endif // DISPLAY_EN
 
     // Create the drive train object based on the selected drive option
 #ifdef HBRIDGE_DRV_EN
@@ -74,6 +84,9 @@ void loop() {
 #ifdef INP_IR_EN
             irInput,
 #endif // INP_IR_EN
+#ifdef DISPLAY_EN
+            display,
+#endif // DISPLAY_EN
             drvTrn,
         };
 
