@@ -7,6 +7,7 @@
 #include "config.h"
 #include "debug.h"
 #include <Task.h>
+#ifdef DISPLAY_EN
 
 /**
  * Display manager task.
@@ -34,7 +35,7 @@ class Display : public TimedTask {
 
     public:
         /**
-         * Contructor.
+         * Constructor.
          *
          * @param r: Run frequency in milliseconds
          **/
@@ -47,4 +48,5 @@ class Display : public TimedTask {
          **/
         void run(uint32_t now);
 };
+#endif //DISPLAY_EN
 #endif //_DISPLAY_H_

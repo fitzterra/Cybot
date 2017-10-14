@@ -58,11 +58,12 @@
 //#define SERVO_DRV_EN  // Needs one digital pin for each wheel
 #define HBRIDGE_DRV_EN  // Needs 2 digital pins per wheel
 // ~~~~~~ Sensor options ~~~~~~~
+#define LIGHTSENSE_EN   // Enables the LDR sensors on the sides
 //#define LINEFOL_EN      // Enables the line follower feature
 //#define BUMPERS_EN      // Enables bumper switches
 // ~~~~~~ Display options ~~~~~~~
 //#define LCD_EN           // Enable Nokia mono LCD (PDC8544)
-#define OLED_EN          // Enable OLED display
+//#define OLED_EN          // Enable OLED display
 
 // Auto define DISPLAY_EN if eithe LCD or OLED is enable
 #if defined(LCD_EN) || defined(OLED_EN)
@@ -154,6 +155,13 @@ enum { LEFT=0, RIGHT=1, FORWARD=2, BACKWARD=3, STOP=4 };
 #define POWER_START_TIME  800 // Do a power start over this many millis
 #define POWER_START_TAPER 100 // For power start, taper to target speed at this rate.
 #endif  // HBRIDGE_DRV_EN 
+
+// ############# Light Sensors Config ##############
+#ifdef LIGHTSENSE_EN
+#define LDR_L   1       // Analog pin used for the left side LDR circuit
+#define LDR_R   0       // Analog pin used for the right side LDR circuit
+#define LIGHTSENSE_UPD_FREQ 400 // Frequency to read the light sensors
+#endif  //LIGHTSENSE_EN
 
 // ############# Line Follower Config ##############
 #ifdef LINEFOL_EN

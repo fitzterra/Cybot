@@ -8,6 +8,28 @@
 #include "control.h"
 #include "driveTrain.h"
 
+//---- Crash monitoring
+#define CRASHDETECT
+#ifdef CRASHDETECT
+//#include <ApplicationMonitor.h>
+//Watchdog::CApplicationMonitor ApplicationMonitor;
+#include <MemoryFree.h>
+
+class WatchdogFeeder : public TimedTask {
+    private:
+        uint32_t rate;
+
+    public:
+        WatchdogFeeder(uint32_t r) : TimedTask(millis()), rate(r) {};
+        void run(uint32_t now) {
+            incRunTime(rate);
+            //ApplicationMonitor.IAmAlive();
+            D(F("Mem: ") << freeMemory() << endl);
+        };
+} *wdf;
+
+#endif // CRASHDETECT
+
 // Set up pointer for each enabled input method.
 #ifdef INP_SERIAL_EN
 SerialIn *sInput;
@@ -25,6 +47,12 @@ IRIn *irInput;
 Display *display;
 #endif // DISPLAY_EN
 
+// Light Sensor
+#ifdef LIGHTSENSE_EN
+#include "lightSense.h"
+LightSensor *lightSense;
+#endif // LIGHTSENSE_EN
+
 // The drive train object pointer
 DriveTrain *drvTrn;
 
@@ -35,6 +63,8 @@ void initShared() {
     shared.nxtCmd = CMD_ZZZ;
     shared.speed = 0;
     shared.dir = 0;
+    shared.lightSense.dir = 0;
+    shared.lightSense.intensity = 0;
 }
 
 void setup() {
@@ -62,6 +92,9 @@ void setup() {
 #ifdef DISPLAY_EN
     display = new Display(DISP_UPD_FREQ);
 #endif // DISPLAY_EN
+#ifdef LIGHTSENSE_EN
+    lightSense = new LightSensor(LIGHTSENSE_UPD_FREQ, LDR_L, LDR_R);
+#endif // LIGHTSENSE_EN
 
     // Create the drive train object based on the selected drive option
 #ifdef HBRIDGE_DRV_EN
@@ -70,6 +103,24 @@ void setup() {
 #else
     drvTrn = new DriveTrain(&shared.nxtCmd, SERVO_LEFT, SERVO_RIGHT);
 #endif // HBRIDGE_DRV_EN
+
+#ifdef CRASHDETECT
+    /*
+    D("\nDUMPS:\n");
+    ApplicationMonitor.Dump(Serial);
+    D("\n--------------------\n");
+    ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_4s);
+    wdf = new WatchdogFeeder(500);
+    pinMode(13, OUTPUT);
+    int c = 5;
+    while(c--) {
+    digitalWrite(13, HIGH);
+    delay(500);
+    digitalWrite(13, LOW);
+    }
+    */
+    D(F("Mem: ") << freeMemory() << endl);
+#endif // CRASHDETECT
 }
 
 void loop() {
@@ -87,7 +138,13 @@ void loop() {
 #ifdef DISPLAY_EN
             display,
 #endif // DISPLAY_EN
+#ifdef LIGHTSENSE_EN
+            lightSense,
+#endif // LIGHTSENSE_EN
             drvTrn,
+#ifdef CRASHDETECT
+            wdf
+#endif // CRASHDETECT
         };
 
     // The scheduler
